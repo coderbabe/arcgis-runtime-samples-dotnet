@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows;
+using ArcGISRuntime.Samples.Managers;
 
 namespace ArcGISRuntime.WPF.Samples.ListKmlContents
 {
@@ -22,11 +23,9 @@ namespace ArcGISRuntime.WPF.Samples.ListKmlContents
         "Layers",
         "List the contents of a KML file.",
         "")]
+    [ArcGISRuntime.Samples.Shared.Attributes.OfflineData("da301cb122874d5497f8a8f6c81eb36e")]
     public partial class ListKmlContents
     {
-        // Hold the URL to the KML sample file.
-        private readonly Uri _kmlUri = new Uri("C:\\Users\\nath9278\\Downloads\\LakesTest.kmz");
-
         // Hold a list of LayerDisplayVM; this is the ViewModel.
         private ObservableCollection<LayerDisplayVM> _viewModelList = new ObservableCollection<LayerDisplayVM>();
 
@@ -41,8 +40,11 @@ namespace ArcGISRuntime.WPF.Samples.ListKmlContents
             // Add a basemap.
             MySceneView.Scene = new Scene(Basemap.CreateImageryWithLabels());
 
+            // Get the URL to the data
+            Uri kmlUrl = new Uri(DataManager.GetDataFolder("da301cb122874d5497f8a8f6c81eb36e", "esri_test_data.kmz"));
+
             // Create the KML dataset and layer.
-            KmlDataset dataset = new KmlDataset(_kmlUri);
+            KmlDataset dataset = new KmlDataset(kmlUrl);
             KmlLayer layer = new KmlLayer(dataset);
 
             // Add the layer to the map.
@@ -50,8 +52,6 @@ namespace ArcGISRuntime.WPF.Samples.ListKmlContents
 
             await dataset.LoadAsync();
             
-            //_viewModelList.Clear();
-            //Thread.Sleep(2000);
             // Build the ViewModel from the expanded list of layer infos
             foreach (KmlNode node in dataset.RootNodes)
             {
