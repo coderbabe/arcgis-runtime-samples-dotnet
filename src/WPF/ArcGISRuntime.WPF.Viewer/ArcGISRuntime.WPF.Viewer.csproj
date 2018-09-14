@@ -1298,9 +1298,9 @@
     <Content Include="Samples\Layers\FeatureLayerUrl\FeatureLayerUrl.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Resource Include="Samples\Layers\ListKmlContents\ListKmlContents.jpg">
+    <Content Include="Samples\Layers\ListKmlContents\ListKmlContents.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
+    </Content>
     <Content Include="Samples\Layers\MapImageLayerTables\MapImageLayerTables.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
