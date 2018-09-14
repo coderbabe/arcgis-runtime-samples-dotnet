@@ -37,7 +37,7 @@ namespace ArcGISRuntime.WPF.Samples.DisplayKml
         private async void Initialize()
         {
             // Set up the basemap.
-            MyMapView.Map = new Map(Basemap.CreateDarkGrayCanvasVector());
+            MySceneView.Scene = new Scene(Basemap.CreateImageryWithLabels());
 
             // Configure the layers - from URL.
             KmlLayer urlLayer = new KmlLayer(new Uri("https://www.arcgis.com/sharing/rest/content/items/324e4742820e46cfbe5029ff2c32cb1f/data"));
@@ -66,7 +66,7 @@ namespace ArcGISRuntime.WPF.Samples.DisplayKml
         private async void LayerPicker_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             // Clear existing layers.
-            MyMapView.Map.OperationalLayers.Clear();
+            MySceneView.Scene.OperationalLayers.Clear();
 
             // Get the name of the selected layer.
             string name = e.AddedItems[0].ToString();
@@ -78,11 +78,11 @@ namespace ArcGISRuntime.WPF.Samples.DisplayKml
                 KmlLayer layer = _dataSources[name];
 
                 // Add the selected layer to the map.
-                MyMapView.Map.OperationalLayers.Add(layer);
+                MySceneView.Scene.OperationalLayers.Add(layer);
 
                 // Zoom to the extent of the layer.
                 await layer.LoadAsync();
-                await MyMapView.SetViewpointGeometryAsync(layer.FullExtent);
+                await MySceneView.SetViewpointAsync(new Viewpoint(layer.FullExtent));
             }
         }
     }

@@ -32,7 +32,7 @@ namespace ArcGISRuntime.WPF.Samples.DisplayKmlNetworkLinks
         private void Initialize()
         {
             // Set up the basemap.
-            MyMapView.Map = new Map(Basemap.CreateDarkGrayCanvasVector());
+            MySceneView.Scene = new Scene(Basemap.CreateImageryWithLabels());
 
             // Get the path to the downloaded KML file.
             string filePath = DataManager.GetDataFolder("600748d4464442288f6db8a4ba27dc95", "Radar.kmz");
@@ -44,10 +44,10 @@ namespace ArcGISRuntime.WPF.Samples.DisplayKmlNetworkLinks
             KmlLayer fileLayer = new KmlLayer(dataset);
 
             // Add the layer to the map.
-            MyMapView.Map.OperationalLayers.Add(fileLayer);
+            MySceneView.Scene.OperationalLayers.Add(fileLayer);
 
             // Zoom in to center the map on Germany.
-            MyMapView.SetViewpointCenterAsync(50.472421, 8.150526, 2000000);
+            MySceneView.SetViewpointAsync(new Viewpoint(new MapPoint(8.150526, 50.472421), 2000000));
         }
     }
 }

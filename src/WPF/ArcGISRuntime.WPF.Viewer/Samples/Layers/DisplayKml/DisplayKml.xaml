@@ -4,7 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:esri="http://schemas.esri.com/arcgis/runtime/2013">
     <Grid>
-        <esri:MapView x:Name="MyMapView"/>
+        <esri:SceneView x:Name="MySceneView"/>
         <Border Style="{StaticResource BorderStyle}">
             <StackPanel Orientation="Vertical">
                 <Label Content="Choose a KML data source." 

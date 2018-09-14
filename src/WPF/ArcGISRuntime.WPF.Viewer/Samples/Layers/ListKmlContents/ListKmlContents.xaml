@@ -12,7 +12,7 @@
                     <RowDefinition Height="auto" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                <TextBlock Text="Toggle the display of KML content."
+                <TextBlock Text="Tap to zoom to KML content."
                            Grid.Row="0" Margin="5"
                            Foreground="Black" FontWeight="Bold" TextAlignment="Center" />
                 <TreeView Name="LayerTreeView" Grid.Row="1" SelectedItemChanged="LayerTreeView_OnSelectedItemChanged">
