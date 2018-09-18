@@ -11,6 +11,7 @@ using ArcGISRuntime.Samples.Managers;
 using Esri.ArcGISRuntime.Mapping;
 using Esri.ArcGISRuntime.Ogc;
 using System;
+using System.Windows;
 using Esri.ArcGISRuntime.Geometry;
 
 namespace ArcGISRuntime.WPF.Samples.DisplayKmlNetworkLinks
@@ -20,7 +21,6 @@ namespace ArcGISRuntime.WPF.Samples.DisplayKmlNetworkLinks
         "Layers",
         "Display a KML file that loads content from a network resource.",
         "")]
-    [ArcGISRuntime.Samples.Shared.Attributes.OfflineData("600748d4464442288f6db8a4ba27dc95")]
     public partial class DisplayKmlNetworkLinks
     {
         public DisplayKmlNetworkLinks()
@@ -34,11 +34,12 @@ namespace ArcGISRuntime.WPF.Samples.DisplayKmlNetworkLinks
             // Set up the basemap.
             MySceneView.Scene = new Scene(Basemap.CreateImageryWithLabels());
 
-            // Get the path to the downloaded KML file.
-            string filePath = DataManager.GetDataFolder("600748d4464442288f6db8a4ba27dc95", "Radar.kmz");
-
             // Create the dataset.
-            KmlDataset dataset = new KmlDataset(new Uri(filePath));
+            KmlDataset dataset = new KmlDataset(new Uri("https://www.arcgis.com/sharing/rest/content/items/600748d4464442288f6db8a4ba27dc95/data"));
+
+            // Listen for network link control messages.
+            // These should be shown to the user.
+            dataset.NetworkLinkControlMessage += Dataset_NetworkLinkControlMessage;
 
             // Create the layer from the dataset.
             KmlLayer fileLayer = new KmlLayer(dataset);
@@ -48,6 +49,11 @@ namespace ArcGISRuntime.WPF.Samples.DisplayKmlNetworkLinks
 
             // Zoom in to center the map on Germany.
             MySceneView.SetViewpointAsync(new Viewpoint(new MapPoint(8.150526, 50.472421, SpatialReferences.Wgs84), 2000000000));
+        }
+
+        private void Dataset_NetworkLinkControlMessage(object sender, KmlNetworkLinkControlMessageEventArgs e)
+        {
+            MessageBox.Show(e.Message, "KML layer message");
         }
     }
 }
