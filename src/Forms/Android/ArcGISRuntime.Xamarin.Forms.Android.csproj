@@ -96,13 +96,13 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Esri.ArcGISRuntime.Hydrography">
-      <Version>100.3.0</Version>
+      <Version>100.4.0-daily2184</Version>
     </PackageReference>
     <PackageReference Include="Esri.ArcGISRuntime.Xamarin.Android">
-      <Version>100.3.0</Version>
+      <Version>100.4.0-daily2184</Version>
     </PackageReference>
     <PackageReference Include="Esri.ArcGISRuntime.Xamarin.Forms">
-      <Version>100.3.0</Version>
+      <Version>100.4.0-daily2184</Version>
     </PackageReference>
     <PackageReference Include="PCLCrypto">
       <Version>2.0.147</Version>

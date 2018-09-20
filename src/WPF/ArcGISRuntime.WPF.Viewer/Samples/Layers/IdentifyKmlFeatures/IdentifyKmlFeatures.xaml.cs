@@ -49,7 +49,7 @@ namespace ArcGISRuntime.WPF.Samples.IdentifyKmlFeatures
 
             // Zoom to the extent of the layer.
             await _forecastLayer.LoadAsync();
-            await MyMapView.SetViewpointGeometryAsync(_forecastLayer.FullExtent, 10);
+            await MyMapView.SetViewpointGeometryAsync(dataset.RootNodes[0].Extent, 10);
 
             // Listen for taps to identify features.
             MyMapView.GeoViewTapped += MyMapView_GeoViewTapped;

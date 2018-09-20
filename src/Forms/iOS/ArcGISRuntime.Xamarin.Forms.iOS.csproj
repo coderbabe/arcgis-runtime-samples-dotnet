@@ -183,13 +183,13 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Esri.ArcGISRuntime.Hydrography">
-      <Version>100.3.0</Version>
+      <Version>100.4.0-daily2184</Version>
     </PackageReference>
     <PackageReference Include="Esri.ArcGISRuntime.Xamarin.Forms">
-      <Version>100.3.0</Version>
+      <Version>100.4.0-daily2184</Version>
     </PackageReference>
     <PackageReference Include="Esri.ArcGISRuntime.Xamarin.iOS">
-      <Version>100.3.0</Version>
+      <Version>100.4.0-daily2184</Version>
     </PackageReference>
     <PackageReference Include="PInvoke.BCrypt">
       <Version>0.5.152</Version>
