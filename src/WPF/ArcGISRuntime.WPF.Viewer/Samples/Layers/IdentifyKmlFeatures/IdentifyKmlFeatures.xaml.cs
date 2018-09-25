@@ -14,6 +14,7 @@ using Esri.ArcGISRuntime.UI.Controls;
 using System;
 using System.Linq;
 using System.Windows.Controls;
+using Esri.ArcGISRuntime.UI;
 
 namespace ArcGISRuntime.WPF.Samples.IdentifyKmlFeatures
 {
@@ -64,13 +65,13 @@ namespace ArcGISRuntime.WPF.Samples.IdentifyKmlFeatures
             IdentifyLayerResult identifyResult = await MyMapView.IdentifyLayerAsync(_forecastLayer, e.Position, 15, false);
 
             // Return if there are no results that are KML placemarks.
-            if (!identifyResult.GeoElements.OfType<KmlPlacemark>().Any())
+            if (!identifyResult.GeoElements.OfType<KmlGeoElement>().Any())
             {
                 return;
             }
 
             // Get the first identified feature that is a KML placemark
-            KmlPlacemark firstIdentifiedPlacemark = identifyResult.GeoElements.OfType<KmlPlacemark>().First();
+            KmlNode firstIdentifiedPlacemark = identifyResult.GeoElements.OfType<KmlGeoElement>().First().KmlNode;
 
             // Create a browser to show the feature popup HTML.
             WebBrowser browser = new WebBrowser

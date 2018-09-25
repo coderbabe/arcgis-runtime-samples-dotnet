@@ -11,6 +11,7 @@ using Esri.ArcGISRuntime.Mapping;
 using System;
 using System.Windows.Controls;
 using ArcGISRuntime.Samples.Managers;
+using Esri.ArcGISRuntime.Geometry;
 using Esri.ArcGISRuntime.Portal;
 
 namespace ArcGISRuntime.WPF.Samples.DisplayKml
@@ -23,6 +24,7 @@ namespace ArcGISRuntime.WPF.Samples.DisplayKml
     [ArcGISRuntime.Samples.Shared.Attributes.OfflineData("324e4742820e46cfbe5029ff2c32cb1f")]
     public partial class DisplayKml
     {
+        private readonly Envelope _usEnvelope = new Envelope(-144.619561355187, 18.0328662832097, -66.0903762761083, 67.6390975806745, SpatialReferences.Wgs84);
         public DisplayKml()
         {
             InitializeComponent();
@@ -71,9 +73,8 @@ namespace ArcGISRuntime.WPF.Samples.DisplayKml
             // Add the selected layer to the map.
             MySceneView.Scene.OperationalLayers.Add(layer);
 
-            // Zoom to the extent of the layer.
-            await layer.LoadAsync();
-            await MySceneView.SetViewpointAsync(new Viewpoint(layer.FullExtent));
+            // Zoom to the extent of the United States.
+            await MySceneView.SetViewpointAsync(new Viewpoint(_usEnvelope));
         }
     }
 }
