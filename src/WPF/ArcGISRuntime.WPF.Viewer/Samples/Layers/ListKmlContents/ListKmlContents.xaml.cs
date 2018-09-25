@@ -13,6 +13,8 @@ using Esri.ArcGISRuntime.Ogc;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Threading.Tasks;
 using System.Windows;
 using ArcGISRuntime.Samples.Managers;
 
@@ -39,6 +41,7 @@ namespace ArcGISRuntime.WPF.Samples.ListKmlContents
         {
             // Add a basemap.
             MySceneView.Scene = new Scene(Basemap.CreateImageryWithLabels());
+            MySceneView.Scene.BaseSurface.ElevationSources.Add(new ArcGISTiledElevationSource(new Uri("https://elevation3d.arcgis.com/arcgis/rest/services/WorldElevation3D/Terrain3D/ImageServer")));
 
             // Get the URL to the data
             Uri kmlUrl = new Uri(DataManager.GetDataFolder("da301cb122874d5497f8a8f6c81eb36e", "esri_test_data.kmz"));
@@ -51,7 +54,7 @@ namespace ArcGISRuntime.WPF.Samples.ListKmlContents
             MySceneView.Scene.OperationalLayers.Add(layer);
 
             await dataset.LoadAsync();
-            
+
             // Build the ViewModel from the expanded list of layer infos
             foreach (KmlNode node in dataset.RootNodes)
             {
@@ -68,17 +71,189 @@ namespace ArcGISRuntime.WPF.Samples.ListKmlContents
         private void LayerTreeView_OnSelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
             // Get the KML node.
-            LayerDisplayVM selectedItem = (LayerDisplayVM)e.NewValue;
+            LayerDisplayVM selectedItem = (LayerDisplayVM) e.NewValue;
 
-            // Get the extent of the node.
-            Envelope geometry = selectedItem.Node.Extent;
-
-            // If the extent is valid, zoom to it.
-            if (geometry != null && !geometry.IsEmpty)
-            {
-                MySceneView.SetViewpointAsync(new Viewpoint(geometry));
-            }
+            NavigateToNode(selectedItem.Node);
         }
+
+        #region viewpoint_conversion
+
+private async void NavigateToNode(KmlNode node)
+{
+    // Get a corrected Runtime viewpoint using the KmlViewpoint.
+    bool viewpointNeedsAltitudeAdjustment;
+    Viewpoint runtimeViewpoint = ViewpointFromKmlViewpoint(node, out viewpointNeedsAltitudeAdjustment);
+    if (viewpointNeedsAltitudeAdjustment)
+    {
+        runtimeViewpoint = await GetAltitudeAdjustedViewpointAsync(node, runtimeViewpoint);
+    }
+
+    // Set the viewpoint.
+    if (runtimeViewpoint != null && !runtimeViewpoint.TargetGeometry.IsEmpty)
+    {
+        await MySceneView.SetViewpointAsync(runtimeViewpoint);
+    }
+}
+
+private Viewpoint ViewpointFromKmlViewpoint(KmlNode node, out bool needsAltitudeFix)
+{
+    KmlViewpoint kvp = node.Viewpoint;
+    // If KmlViewpoint is specified, use it.
+    if (kvp != null)
+    {
+        // Altitude adjustment is needed for everything except Absolute altitude mode.
+        needsAltitudeFix = (kvp.AltitudeMode != KmlAltitudeMode.Absolute);
+        switch (kvp.Type)
+        {
+            case KmlViewpointType.LookAt:
+                return new Viewpoint(kvp.Location,
+                    new Camera(kvp.Location, kvp.Range, kvp.Heading, kvp.Pitch, kvp.Roll));
+            case KmlViewpointType.Camera:
+                return new Viewpoint(kvp.Location,
+                    new Camera(kvp.Location, kvp.Heading, kvp.Pitch, kvp.Roll));
+            default:
+                throw new InvalidOperationException("Unexpected KmlViewPointType: " + kvp.Type);
+        }
+    }
+
+    if (node.Extent != null && !node.Extent.IsEmpty)
+    {
+        // When no altitude specified, assume elevation should be taken into account.
+        needsAltitudeFix = true;
+
+        // Workaround: it's possible for "IsEmpty" to be true but for width/height to still be zero.
+        if (node.Extent.Width == 0 && node.Extent.Height == 0)
+        {
+            // Defaults based on Google Earth.
+            return new Viewpoint(node.Extent, new Camera(node.Extent.GetCenter(), 1000, 0, 45, 0));
+        }
+        else
+        {
+            Envelope tx = node.Extent;
+            // Add padding on each side.
+            double bufferDistance = Math.Max(node.Extent.Width, node.Extent.Height) / 20;
+            Envelope bufferedExtent = new Envelope(
+                tx.XMin - bufferDistance, tx.YMin - bufferDistance,
+                tx.XMax + bufferDistance, tx.YMax + bufferDistance,
+                tx.ZMin - bufferDistance, tx.ZMax + bufferDistance,
+                SpatialReferences.Wgs84);
+            return new Viewpoint(bufferedExtent);
+        }
+    }
+    else
+    {
+        // Can't fly to.
+        needsAltitudeFix = false;
+        return null;
+    }
+}
+
+// Asynchronously adjust the given viewpoint, taking into consideration elevation and KML altitude mode.
+private async Task<Viewpoint> GetAltitudeAdjustedViewpointAsync(KmlNode node, Viewpoint baseViewpoint)
+{
+    // Get the altitude mode; assume clamp-to-ground if not specified.
+    KmlAltitudeMode altMode = KmlAltitudeMode.ClampToGround;
+    if (node.Viewpoint != null)
+    {
+        altMode = node.Viewpoint.AltitudeMode;
+    }
+
+    // If the altitude mode is Absolute, the base viewpoint doesn't need adjustment.
+    if (altMode == KmlAltitudeMode.Absolute)
+    {
+        return baseViewpoint;
+    }
+
+    double altitude;
+    Envelope lookAtExtent = baseViewpoint.TargetGeometry as Envelope;
+    MapPoint lookAtPoint = baseViewpoint.TargetGeometry as MapPoint;
+
+    if (lookAtExtent != null)
+    {
+        // Get the altitude for the extent.
+        try
+        {
+            altitude = await MySceneView.Scene.BaseSurface.GetElevationAsync(lookAtExtent.GetCenter());
+        }
+        catch (Exception)
+        {
+            altitude = 0;
+        }
+
+        // Apply elevation adjustment to the geometry.
+        Envelope target;
+        if (altMode == KmlAltitudeMode.ClampToGround)
+        {
+            target = new Envelope(
+                lookAtExtent.XMin, lookAtExtent.YMin,
+                lookAtExtent.XMax, lookAtExtent.YMax,
+                altitude, lookAtExtent.Depth + altitude,
+                lookAtExtent.SpatialReference);
+        }
+        else
+        {
+            target = new Envelope(
+                lookAtExtent.XMin, lookAtExtent.YMin,
+                lookAtExtent.XMax, lookAtExtent.YMax,
+                lookAtExtent.ZMin + altitude, lookAtExtent.ZMax + altitude,
+                lookAtExtent.SpatialReference);
+        }
+
+        if (node.Viewpoint != null)
+        {
+            // Return adjusted geometry with adjusted camera if a viewpoint was specified on the node.
+            return new Viewpoint(target, baseViewpoint.Camera.Elevate(altitude));
+        }
+        else
+        {
+            // Return adjusted geometry.
+            return new Viewpoint(target);
+        }
+    }
+    else if (lookAtPoint != null)
+    {
+        // Get the altitude adjustment.
+        try
+        {
+            altitude = await MySceneView.Scene.BaseSurface.GetElevationAsync(lookAtPoint);
+        }
+        catch (Exception)
+        {
+            altitude = 0;
+        }
+
+        // Apply elevation adjustment to the geometry.
+        MapPoint target;
+        if (altMode == KmlAltitudeMode.ClampToGround)
+        {
+            target = new MapPoint(lookAtPoint.X, lookAtPoint.Y, altitude, lookAtPoint.SpatialReference);
+        }
+        else
+        {
+            target = new MapPoint(
+                lookAtPoint.X, lookAtPoint.Y, lookAtPoint.Z + altitude,
+                lookAtPoint.SpatialReference);
+        }
+
+        if (node.Viewpoint != null)
+        {
+            // Return adjusted geometry with adjusted camera if a viewpoint was specified on the node.
+            return new Viewpoint(target, baseViewpoint.Camera.Elevate(altitude));
+        }
+        else
+        {
+            // Google Earth defaults: 1000m away and 45-degree tilt.
+            return new Viewpoint(target, new Camera(target, 1000, 0, 45, 0));
+        }
+    }
+    else
+    {
+        throw new InvalidOperationException("KmlNode has unexpected Geometry for its Extent: " +
+                                            baseViewpoint.TargetGeometry);
+    }
+}
+
+        #endregion viewpoint_conversion
     }
 
     public class LayerDisplayVM

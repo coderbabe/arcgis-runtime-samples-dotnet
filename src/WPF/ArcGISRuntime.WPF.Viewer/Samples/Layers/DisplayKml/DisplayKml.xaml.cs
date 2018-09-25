@@ -9,10 +9,8 @@
 
 using Esri.ArcGISRuntime.Mapping;
 using System;
-using System.Collections.Generic;
 using System.Windows.Controls;
 using ArcGISRuntime.Samples.Managers;
-using Esri.ArcGISRuntime.Ogc;
 using Esri.ArcGISRuntime.Portal;
 
 namespace ArcGISRuntime.WPF.Samples.DisplayKml
@@ -25,40 +23,20 @@ namespace ArcGISRuntime.WPF.Samples.DisplayKml
     [ArcGISRuntime.Samples.Shared.Attributes.OfflineData("324e4742820e46cfbe5029ff2c32cb1f")]
     public partial class DisplayKml
     {
-        // Dictionary associates labels (for use in UI) with layers.
-        private readonly Dictionary<string, KmlLayer> _dataSources = new Dictionary<string, KmlLayer>();
-
         public DisplayKml()
         {
             InitializeComponent();
             Initialize();
         }
 
-        private async void Initialize()
+        private void Initialize()
         {
             // Set up the basemap.
             MySceneView.Scene = new Scene(Basemap.CreateImageryWithLabels());
 
-            // Configure the layers - from URL.
-            KmlLayer urlLayer = new KmlLayer(new Uri("https://www.arcgis.com/sharing/rest/content/items/324e4742820e46cfbe5029ff2c32cb1f/data"));
-
-            // Configure the layers - from file.
-            string filePath = DataManager.GetDataFolder("324e4742820e46cfbe5029ff2c32cb1f", "US_State_Capitals.kml");
-            KmlLayer fileLayer = new KmlLayer(new Uri(filePath));
-
-            // Configure the layers - from portal.
-            ArcGISPortal portal = await ArcGISPortal.CreateAsync();
-            PortalItem item = await PortalItem.CreateAsync(portal, "9fe0b1bfdcd64c83bd77ea0452c76253");
-            KmlLayer portalItemLayer = new KmlLayer(item);
-
-            // Add the layers to the collection.
-            _dataSources["URL"] = urlLayer;
-            _dataSources["Local file"] = fileLayer;
-            _dataSources["Portal item"] = portalItemLayer;
-
             // Update the UI.
             LayerPicker.IsEnabled = true;
-            LayerPicker.ItemsSource = _dataSources.Keys;
+            LayerPicker.ItemsSource = new [] {"URL", "Local file", "Portal item"};
             LayerPicker.SelectionChanged += LayerPicker_SelectionChanged;
             LayerPicker.SelectedIndex = 0;
         }
@@ -71,19 +49,31 @@ namespace ArcGISRuntime.WPF.Samples.DisplayKml
             // Get the name of the selected layer.
             string name = e.AddedItems[0].ToString();
 
-            // Verify that the selected layer is in the dictionary.
-            if (_dataSources.ContainsKey(name))
+            // Create the layer using the chosen constructor.
+            KmlLayer layer;
+            switch (name)
             {
-                // Retrieve the layer from the dictionary.
-                KmlLayer layer = _dataSources[name];
-
-                // Add the selected layer to the map.
-                MySceneView.Scene.OperationalLayers.Add(layer);
-
-                // Zoom to the extent of the layer.
-                await layer.LoadAsync();
-                await MySceneView.SetViewpointAsync(new Viewpoint(layer.FullExtent));
+                case "URL":
+                default:
+                    layer = new KmlLayer(new Uri("https://www.wpc.ncep.noaa.gov/kml/noaa_chart/WPC_Day1_SigWx.kml"));
+                    break;
+                case "Local file":
+                    string filePath = DataManager.GetDataFolder("324e4742820e46cfbe5029ff2c32cb1f", "US_State_Capitals.kml");
+                    layer = new KmlLayer(new Uri(filePath));
+                    break;
+                case "Portal item":
+                    ArcGISPortal portal = await ArcGISPortal.CreateAsync();
+                    PortalItem item = await PortalItem.CreateAsync(portal, "9fe0b1bfdcd64c83bd77ea0452c76253");
+                    layer = new KmlLayer(item);
+                    break;
             }
+
+            // Add the selected layer to the map.
+            MySceneView.Scene.OperationalLayers.Add(layer);
+
+            // Zoom to the extent of the layer.
+            await layer.LoadAsync();
+            await MySceneView.SetViewpointAsync(new Viewpoint(layer.FullExtent));
         }
     }
 }
