@@ -1,4 +1,4 @@
-﻿# Display KML network links
+# Display KML network links
 
 KML files can reference other KML files on the network as well as refresh intervals. This can be used to create a map that will periodically refresh itself with the latest data. This sample demonstrates how to display a file with a network link.
 

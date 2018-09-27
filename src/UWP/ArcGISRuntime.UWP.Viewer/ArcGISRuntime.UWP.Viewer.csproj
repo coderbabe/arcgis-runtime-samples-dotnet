@@ -198,6 +198,10 @@
     <Content Include="Samples\Layers\TimeBasedQuery\TimeBasedQuery.jpg" />
     <Content Include="Samples\Layers\WmsIdentify\WmsIdentify.jpg" />
     <Content Include="Samples\Layers\WMSLayerUrl\WMSLayerUrl.jpg" />
+    <Content Include="Samples\Layers\ListKmlContents\ListKmlContents.jpg" />
+    <Content Include="Samples\Layers\IdentifyKmlFeatures\IdentifyKmlFeatures.jpg" />
+    <Content Include="Samples\Layers\DisplayKml\DisplayKml.jpg" />
+    <Content Include="Samples\Layers\DisplayKmlNetworkLinks\DisplayKmlNetworkLinks.jpg" />
     <Content Include="Samples\Layers\WmsServiceCatalog\WmsServiceCatalog.jpg" />
     <Content Include="Samples\Layers\WMTSLayer\WMTSLayer.jpg" />
     <Content Include="Samples\Location\DisplayDeviceLocation\DisplayDeviceLocation.jpg" />
@@ -540,6 +544,18 @@
     </Compile>
     <Compile Include="Samples\Layers\WMSLayerUrl\WMSLayerUrl.xaml.cs">
       <DependentUpon>WMSLayerUrl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Samples\Layers\ListKmlContents\ListKmlContents.xaml.cs">
+      <DependentUpon>ListKmlContents.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Samples\Layers\IdentifyKmlFeatures\IdentifyKmlFeatures.xaml.cs">
+      <DependentUpon>IdentifyKmlFeatures.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Samples\Layers\DisplayKml\DisplayKml.xaml.cs">
+      <DependentUpon>DisplayKml.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Samples\Layers\DisplayKmlNetworkLinks\DisplayKmlNetworkLinks.xaml.cs">
+      <DependentUpon>DisplayKmlNetworkLinks.xaml</DependentUpon>
     </Compile>
     <Compile Include="Samples\Layers\WmsServiceCatalog\WmsServiceCatalog.xaml.cs">
       <DependentUpon>WmsServiceCatalog.xaml</DependentUpon>
@@ -1013,6 +1029,22 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Samples\Layers\ListKmlContents\ListKmlContents.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Samples\Layers\IdentifyKmlFeatures\IdentifyKmlFeatures.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Samples\Layers\DisplayKml\DisplayKml.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Samples\Layers\DisplayKmlNetworkLinks\DisplayKmlNetworkLinks.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Samples\Layers\WmsServiceCatalog\WmsServiceCatalog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -1246,10 +1278,10 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Esri.ArcGISRuntime.Hydrography">
-      <Version>100.4.0-daily2188</Version>
+      <Version>100.4.0-daily2191</Version>
     </PackageReference>
     <PackageReference Include="Esri.ArcGISRuntime.UWP">
-      <Version>100.4.0-daily2188</Version>
+      <Version>100.4.0-daily2191</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
       <Version>6.0.8</Version>
