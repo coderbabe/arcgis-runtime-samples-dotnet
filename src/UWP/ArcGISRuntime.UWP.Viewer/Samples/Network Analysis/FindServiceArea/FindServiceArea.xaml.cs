@@ -101,6 +101,9 @@ namespace ArcGISRuntime.UWP.Samples.FindServiceArea
 
         private async void DrawBarrierButton_Click(object sender, RoutedEventArgs e)
         {
+            DrawBarrierButton.Click -= DrawBarrierButton_Click;
+            DrawBarrierButton.Click += FinishDrawing;
+            DrawBarrierButton.Content = "Finish drawing";
             try
             {
                 // Let the user draw on the map view using the polyline sketch mode.
@@ -128,6 +131,15 @@ namespace ArcGISRuntime.UWP.Samples.FindServiceArea
                 // Report exceptions.
                 await new MessageDialog("Error drawing barrier:\n" + ex.Message, "Sample error").ShowAsync();
             }
+        }
+
+        private void FinishDrawing(object sender, RoutedEventArgs e)
+        {
+            MyMapView.SketchEditor.CompleteCommand.Execute(sender);
+
+            DrawBarrierButton.Click -= FinishDrawing;
+            DrawBarrierButton.Click += DrawBarrierButton_Click;
+            DrawBarrierButton.Content = "Draw barrier";
         }
 
         private async void ShowServiceAreasButton_Click(object sender, RoutedEventArgs e)
@@ -167,7 +179,6 @@ namespace ArcGISRuntime.UWP.Samples.FindServiceArea
 
             // Add the barriers to the service area parameters.
             serviceAreaParameters.SetPolylineBarriers(polylineBarriers);
-
             // Update the parameters to include all of the placed facilities.
             serviceAreaParameters.SetFacilities(serviceAreaFacilities);
 
